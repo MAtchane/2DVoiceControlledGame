@@ -15,13 +15,14 @@ public class VoiceInputListener : MonoBehaviour {
     private int minFreq;
     private int maxFreq;
     private bool micConnected;
-    private bool voiceDetected;
+    private bool validRecording;
     private VoiceStrenght voiceStrenght;
 
 
 	// Use this for initialization
 	void Start () {
 
+        inputDispatcher = new PlayerInputDispatcher();
         if (Microphone.devices.Length <= 0)
         {
             throw new NotSupportedException();
@@ -49,7 +50,9 @@ public class VoiceInputListener : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-        if (voiceDetected)
+        StopRecording();
+        validRecording = ProcessRecordedClip();
+        if (validRecording)
         {
             switch (voiceStrenght)
             {
@@ -63,8 +66,13 @@ public class VoiceInputListener : MonoBehaviour {
             }
         }
 
-        voiceDetected = DetectVoice();
+        ListenTillNextUpdate();
 
+    }
+
+    void StopRecording()
+    {
+        Microphone.End(null);
     }
 
     void OnHighVoice()
@@ -82,8 +90,9 @@ public class VoiceInputListener : MonoBehaviour {
         inputDispatcher.OnInput(InputCarrier.NoVoice);
     }
 
-    bool DetectVoice()
+    bool ProcessRecordedClip()
     {
+        voiceStrenght = VoiceStrenght.HighVoice;
         return true;
     }
 
