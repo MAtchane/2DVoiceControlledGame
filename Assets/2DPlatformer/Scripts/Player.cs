@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -8,16 +9,8 @@ public class Player : PhysicsObject
     public float maxSpeed = 7;
     public float jumpTakeOffSpeed = 7;
 
-    public PlayerState playerState
-    {
-        get { return playerState;  }
-        set
-        {
-            previousState = playerState;
-            playerState = value;
-        }
-    }
-
+    public PlayerState playerState;
+    
     public PlayerState previousState;
     public float score;
     
@@ -45,6 +38,14 @@ public class Player : PhysicsObject
                 break;
         }
         ComputeScore();
+        UpdatePlayerAnimation();
+    }
+
+    internal void UpdateState(PlayerState newState)
+    {
+        previousState = playerState;
+        playerState = newState;
+
     }
 
     public void Move()
@@ -75,14 +76,14 @@ public class Player : PhysicsObject
 
     public void UpdatePlayerAnimation()
     {
-        //bool flipSprite = (spriteRenderer.flipX ? (move.x > 0.01f) : (move.x < 0.01f));
-        //if (flipSprite)
-        //{
-        //    spriteRenderer.flipX = !spriteRenderer.flipX;
-        //}
+        bool flipSprite = (spriteRenderer.flipX ? (targetVelocity.x > 0.01f) : (targetVelocity.x < 0.01f));
+        if (flipSprite)
+        {
+            spriteRenderer.flipX = !spriteRenderer.flipX;
+        }
 
-        //animator.SetBool("grounded", grounded);
-        //animator.SetFloat("velocityX", Mathf.Abs(velocity.x) / maxSpeed);
+        animator.SetBool("grounded", grounded);
+        animator.SetFloat("velocityX", Mathf.Abs(velocity.x) / maxSpeed);
     }
 
     public void ComputeScore()

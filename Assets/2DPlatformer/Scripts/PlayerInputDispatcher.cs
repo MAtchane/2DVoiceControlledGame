@@ -19,11 +19,11 @@ public class PlayerInputDispatcher : IInputDispatcher
         }
         switch (input)
         {
-            case InputCarrier.LowVoice: player.playerState = PlayerState.Moving;
+            case InputCarrier.LowVoice: player.UpdateState(PlayerState.Moving);
                 break;
-            case InputCarrier.HighVoice: player.playerState = PlayerState.Jumping;
+            case InputCarrier.HighVoice: player.UpdateState(PlayerState.Jumping);
                 break;
-            case InputCarrier.NoVoice: player.playerState = PlayerState.Idle;
+            case InputCarrier.NoVoice: player.UpdateState(PlayerState.Idle);
                 break;
             default: throw new InvalidEnumArgumentException();
         }
