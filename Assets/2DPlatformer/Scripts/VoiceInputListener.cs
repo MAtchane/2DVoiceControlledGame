@@ -11,17 +11,20 @@ public class VoiceInputListener : MonoBehaviour {
 
     public IInputDispatcher inputDispatcher;
     private float micSensitivity;
-    private AudioClip deltaRecorded;
+    private AudioClip nextDeltaRecorded;
+    private AudioClip nowDeltaRecorded;
+    private float[] spectrumData = new float[256];
     private int minFreq;
     private int maxFreq;
     private bool micConnected;
     private bool validRecording;
     private VoiceStrenght voiceStrenght;
+    private int listeningTime = 60;
 
 
-	// Use this for initialization
-	void Start () {
-
+    // Use this for initialization
+    void Start () {
+        voiceStrenght = VoiceStrenght.NoVoice;
         inputDispatcher = new PlayerInputDispatcher();
         if (Microphone.devices.Length <= 0)
         {
@@ -41,16 +44,18 @@ public class VoiceInputListener : MonoBehaviour {
             }
 
             //Start recording
-            ListenTillNextUpdate();
+            ListenForFixedTime();
 
         }
 
 
     }
 	
-	// Update is called once per frame
 	void Update () {
-        StopRecording();
+
+        nowDeltaRecorded = nextDeltaRecorded;
+        ListenForFixedTime();
+
         validRecording = ProcessRecordedClip();
         if (validRecording)
         {
@@ -66,13 +71,7 @@ public class VoiceInputListener : MonoBehaviour {
             }
         }
 
-        ListenTillNextUpdate();
 
-    }
-
-    void StopRecording()
-    {
-        Microphone.End(null);
     }
 
     void OnHighVoice()
@@ -92,7 +91,8 @@ public class VoiceInputListener : MonoBehaviour {
 
     bool ProcessRecordedClip()
     {
-        voiceStrenght = VoiceStrenght.HighVoice;
+        nowDeltaRecorded.GetData(spectrumData, 0);
+        voiceStrenght = VoiceStrenght.NoVoice;
         return true;
     }
 
@@ -103,20 +103,21 @@ public class VoiceInputListener : MonoBehaviour {
 
     /// <summary>
     /// Set up the microphone to listen in between Unity updates
-    /// (stops and starts again on every update) TODO check performance
+    /// (stops and starts again on every update) Very laggy performance
     /// </summary>
-    void ListenTillNextUpdate()
+    void ListenForFixedTime()
     {
-        if (Microphone.devices.Length > 0)
+        if (micConnected)
         {
-            if (Microphone.IsRecording(null))
+            var notRecording = !(Microphone.IsRecording(null));
+            //if (Microphone.IsRecording(null))
+            //{
+            //    Microphone.End(null);
+            //    nextDeltaRecorded = Microphone.Start(null, false, 1, maxFreq);
+            //}
+            if(notRecording)
             {
-                Microphone.End(null);
-                deltaRecorded = Microphone.Start(null, true, 1, maxFreq);
-            }
-            else
-            {
-                deltaRecorded = Microphone.Start(null, true, 1, maxFreq);
+                nextDeltaRecorded = Microphone.Start(null, false, listeningTime, maxFreq);
             }
         }
         else
@@ -124,6 +125,8 @@ public class VoiceInputListener : MonoBehaviour {
             throw new NotSupportedException();
         }  
     }
+
+
 
 
 }

@@ -27,7 +27,6 @@ public class PlayerInputDispatcher : IInputDispatcher
                 break;
             default: throw new InvalidEnumArgumentException();
         }
-        throw new NotImplementedException();
     }
 }
 
