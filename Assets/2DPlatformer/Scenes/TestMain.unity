@@ -2551,7 +2551,7 @@ Prefab:
     m_Modifications:
     - target: {fileID: 4566797654940672, guid: e7fcecc826687024e9b52ec763b14088, type: 2}
       propertyPath: m_LocalPosition.x
-      value: -4.14
+      value: -1.79
       objectReference: {fileID: 0}
     - target: {fileID: 4566797654940672, guid: e7fcecc826687024e9b52ec763b14088, type: 2}
       propertyPath: m_LocalPosition.y
@@ -2666,7 +2666,7 @@ Prefab:
     - target: {fileID: 20134372339604138, guid: 0f387d2a5577afa47b4f87e4e846f091,
         type: 2}
       propertyPath: orthographic size
-      value: 2.546875
+      value: 2.5546875
       objectReference: {fileID: 0}
     - target: {fileID: 114123390247084860, guid: 0f387d2a5577afa47b4f87e4e846f091,
         type: 2}
@@ -2736,3 +2736,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dbd3737403d148c47ab381a92f756351, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  micSensitivity: 1
+  highLowSoundThreshold: 30

@@ -10,16 +10,20 @@ using UnityEngine;
 public class VoiceInputListener : MonoBehaviour {
 
     public IInputDispatcher inputDispatcher;
-    private float micSensitivity;
-    private AudioClip nextDeltaRecorded;
-    private AudioClip nowDeltaRecorded;
-    private float[] spectrumData = new float[256];
+    public float micSensitivity;
+    public float highLowSoundThreshold;
+    private float sensitivityFactor = 0.01f;
+
+    private AudioClip recordedData;
+    private AudioClip recordedDataDouble;
     private int minFreq;
     private int maxFreq;
     private bool micConnected;
     private bool validRecording;
     private VoiceStrenght voiceStrenght;
     private int listeningTime = 60;
+    private int previousFrameSamplesLenght;
+    private float previousFrameSoundData;
 
 
     // Use this for initialization
@@ -52,9 +56,11 @@ public class VoiceInputListener : MonoBehaviour {
     }
 	
 	void Update () {
-
-        nowDeltaRecorded = nextDeltaRecorded;
-        ListenForFixedTime();
+        var recordingLooped = recordedData.samples < previousFrameSamplesLenght;
+        if (recordingLooped)
+        {
+            ResetPeriodicRecordingsData();
+        }
 
         validRecording = ProcessRecordedClip();
         if (validRecording)
@@ -71,7 +77,7 @@ public class VoiceInputListener : MonoBehaviour {
             }
         }
 
-
+        previousFrameSamplesLenght = Microphone.GetPosition(null);
     }
 
     void OnHighVoice()
@@ -89,10 +95,35 @@ public class VoiceInputListener : MonoBehaviour {
         inputDispatcher.OnInput(InputCarrier.NoVoice);
     }
 
-    bool ProcessRecordedClip()
+    bool ProcessRecordedClip() //todo why return a bool? why return anything? maybe exceptions much!
     {
-        nowDeltaRecorded.GetData(spectrumData, 0);
-        voiceStrenght = VoiceStrenght.NoVoice;
+        float[] samples = new float[recordedData.samples * recordedData.channels];
+        recordedData.GetData(samples, 0);
+        int i = 0;
+        float samplesSum = 0;
+        while (i < samples.Length)
+        {
+            samplesSum += Math.Abs(samples[i]);
+            ++i;
+        }
+        float sensitivityThreshold = (Microphone.GetPosition(null) - previousFrameSamplesLenght) * micSensitivity * sensitivityFactor;
+        if ((samplesSum - previousFrameSoundData) > sensitivityThreshold)
+        {
+            var highLowSoundthresholdData = (Microphone.GetPosition(null) - previousFrameSamplesLenght) * highLowSoundThreshold * sensitivityFactor;
+            if ((samplesSum - previousFrameSoundData) > highLowSoundthresholdData)
+            {
+                voiceStrenght = VoiceStrenght.HighVoice;
+            }
+            else
+            {
+                voiceStrenght = VoiceStrenght.LowVoice ;
+            }
+        }
+        else
+        {
+            voiceStrenght = VoiceStrenght.NoVoice;
+        }
+        previousFrameSoundData = samplesSum;
         return true;
     }
 
@@ -110,14 +141,10 @@ public class VoiceInputListener : MonoBehaviour {
         if (micConnected)
         {
             var notRecording = !(Microphone.IsRecording(null));
-            //if (Microphone.IsRecording(null))
-            //{
-            //    Microphone.End(null);
-            //    nextDeltaRecorded = Microphone.Start(null, false, 1, maxFreq);
-            //}
+
             if(notRecording)
             {
-                nextDeltaRecorded = Microphone.Start(null, false, listeningTime, maxFreq);
+                recordedData = Microphone.Start(null, true, listeningTime, maxFreq);
             }
         }
         else
@@ -126,7 +153,10 @@ public class VoiceInputListener : MonoBehaviour {
         }  
     }
 
-
-
+    void ResetPeriodicRecordingsData()
+    {
+        previousFrameSamplesLenght = 0;
+        previousFrameSoundData = 0f;
+    }
 
 }
