@@ -7,9 +7,16 @@ EditorBuildSettings:
   m_Scenes:
   - enabled: 0
     path: Assets/Lessons/Lesson2/lesson2.unity
+    guid: 00000000000000000000000000000000
   - enabled: 0
     path: Assets/Lessons/Lesson3/lesson3.unity
+    guid: 00000000000000000000000000000000
   - enabled: 0
     path: Assets/Lessons/Lesson4/lesson4.unity
-  - enabled: 1
+    guid: 00000000000000000000000000000000
+  - enabled: 0
     path: Assets/Lessons/Complete/complete.unity
+    guid: 00000000000000000000000000000000
+  - enabled: 1
+    path: Assets/2DPlatformer/Scenes/TestMain.unity
+    guid: e0a1972c08fa4654a9c1bd74e5d9e085
